@@ -18,7 +18,17 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "erasableSyntaxOnly": true,
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
+
+    // Type checking
+    "strict": true,
+    "noImplicitAny": true,
+
+    // Aliases
+    "paths": {
+      // A new catch-all that replaces the baseUrl:
+      "@/*": ["./src/*"]
+    }
   },
   "include": ["src"]
 }
