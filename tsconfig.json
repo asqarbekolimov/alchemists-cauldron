@@ -22,13 +22,7 @@
 
     // Type checking
     "strict": true,
-    "noImplicitAny": true,
-
-    // Aliases
-    "paths": {
-      // A new catch-all that replaces the baseUrl:
-      "@/*": ["./src/*"]
-    }
+    "noImplicitAny": true
   },
   "include": ["src"]
 }
