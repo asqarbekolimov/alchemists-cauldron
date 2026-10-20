@@ -24,6 +24,12 @@ export interface IRecipe {
   magicPower: IRecipeRange;
 }
 
+export interface ICauldronValues {
+  temperature: number;
+  density: number;
+  magicPower: number;
+}
+
 export interface IGameState {
   status: GameStatus;
   score: number;

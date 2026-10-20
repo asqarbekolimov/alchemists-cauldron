@@ -1,5 +1,6 @@
 import type { IGameState, IIngredient } from '../utils/types';
 import { element } from '../utils/dom';
+import { formatSigned } from '../utils/format';
 import { ingredientIcon } from './icons';
 
 export interface ShelfView {
@@ -12,10 +13,6 @@ interface ShelfCard {
   name: string;
   button: HTMLButtonElement;
   stockBadge: HTMLElement;
-}
-
-function formatSigned(value: number): string {
-  return value > 0 ? `+${value}` : String(value);
 }
 
 function createStatChip(modifier: string, label: string, value: number): HTMLElement {
