@@ -582,11 +582,26 @@ button {
 }
 
 .bar {
+  position: relative;
   padding: 10px 16px 8px;
   background: linear-gradient(180deg, rgb(22 30 17 / 96%), rgb(9 12 8 / 96%));
   border: 1px solid var(--border);
   border-radius: 14px;
   box-shadow: var(--shadow-panel);
+  transition:
+    border-color 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.bar__current {
+  position: absolute;
+  top: 9px;
+  right: 14px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--bar-color);
+  transition: color 0.2s ease;
 }
 
 .bar__title {
@@ -622,6 +637,18 @@ button {
   bottom: 0;
   background: rgb(126 211 74 / 32%);
   border-inline: 2px solid rgb(174 255 120 / 85%);
+  transition:
+    left 0.25s ease,
+    width 0.25s ease;
+}
+
+.bar__zero {
+  position: absolute;
+  top: -3px;
+  bottom: -3px;
+  width: 1px;
+  background: rgb(255 255 255 / 28%);
+  transform: translateX(-50%);
 }
 
 .bar__marker {
@@ -633,6 +660,10 @@ button {
   border-radius: 2px;
   box-shadow: 0 0 10px #b6ff6a;
   transform: translateX(-50%);
+  transition:
+    left 0.25s ease,
+    background 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .bar__scale {
@@ -653,6 +684,24 @@ button {
 
 .bar--magic {
   --bar-color: #b78cf0;
+}
+
+.bar--success {
+  border-color: rgb(142 226 85 / 60%);
+  box-shadow:
+    0 0 26px -10px rgb(142 226 85 / 85%),
+    var(--shadow-panel);
+}
+
+.bar--success .bar__current {
+  color: var(--green-strong);
+}
+
+.bar--success .bar__marker {
+  background: var(--green-strong);
+  box-shadow:
+    0 0 12px #b6ff6a,
+    0 0 24px rgb(182 255 106 / 80%);
 }
 
 /* ==========================================================================
