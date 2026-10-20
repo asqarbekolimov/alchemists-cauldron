@@ -1,6 +1,11 @@
-import type { IRecipe, IRecipeRange } from '../utils/types';
+import type { IGameState, IRecipeRange } from '../utils/types';
 import { element } from '../utils/dom';
 import { icon, type IconName } from './icons';
+
+export interface RecipeView {
+  element: HTMLElement;
+  update(state: IGameState): void;
+}
 
 function formatRange(range: IRecipeRange): string {
   return `${range.min}–${range.max}`;
@@ -22,8 +27,12 @@ function createTarget(
   });
 }
 
-export function createRecipePanel(recipe: IRecipe, used: number, capacity: number): HTMLElement {
-  return element('aside', {
+export function createRecipeView(capacity: number): RecipeView {
+  const name = element('p', { className: 'recipe__name' });
+  const counterValue = element('strong');
+  const targets = element('ul', { className: 'recipe__targets' });
+
+  const root = element('aside', {
     className: 'panel recipe',
     attributes: { 'aria-labelledby': 'recipe-title' },
     children: [
@@ -32,28 +41,32 @@ export function createRecipePanel(recipe: IRecipe, used: number, capacity: numbe
         textContent: 'Current Recipe',
         attributes: { id: 'recipe-title' },
       }),
-      element('p', { className: 'recipe__name', textContent: recipe.name }),
+      name,
       element('div', {
         className: 'recipe__art',
         attributes: { 'aria-hidden': 'true' },
         children: [icon('flask', 'recipe__art-icon')],
       }),
-      element('ul', {
-        className: 'recipe__targets',
-        children: [
-          createTarget('temperature', 'thermometer', 'Temp', recipe.temperature),
-          createTarget('density', 'droplet', 'Density', recipe.density),
-          createTarget('magic', 'spark', 'Magic', recipe.magicPower),
-        ],
-      }),
+      targets,
       element('p', {
         className: 'recipe__counter',
         attributes: { 'data-field': 'ingredient-counter' },
-        children: [
-          element('span', { textContent: 'Ingredients: ' }),
-          element('strong', { textContent: `${used} / ${capacity}` }),
-        ],
+        children: [element('span', { textContent: 'Ingredients: ' }), counterValue],
       }),
     ],
   });
+
+  function update(state: IGameState): void {
+    const recipe = state.activeRecipe;
+
+    name.textContent = recipe.name;
+    targets.replaceChildren(
+      createTarget('temperature', 'thermometer', 'Temp', recipe.temperature),
+      createTarget('density', 'droplet', 'Density', recipe.density),
+      createTarget('magic', 'spark', 'Magic', recipe.magicPower),
+    );
+    counterValue.textContent = `${state.cauldronIngredients.length} / ${capacity}`;
+  }
+
+  return { element: root, update };
 }
