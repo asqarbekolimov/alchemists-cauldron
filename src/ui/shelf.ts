@@ -1,9 +1,17 @@
-import type { IIngredient } from '../utils/types';
+import type { IGameState, IIngredient } from '../utils/types';
 import { element } from '../utils/dom';
+import { ingredientIcon } from './icons';
 
-export interface ShelfItem {
-  ingredient: IIngredient;
-  stock: number;
+export interface ShelfView {
+  element: HTMLElement;
+  update(state: IGameState, maxCauldron: number): void;
+}
+
+interface ShelfCard {
+  id: string;
+  name: string;
+  button: HTMLButtonElement;
+  stockBadge: HTMLElement;
 }
 
 function formatSigned(value: number): string {
@@ -20,8 +28,11 @@ function createStatChip(modifier: string, label: string, value: number): HTMLEle
   });
 }
 
-function createShelfCard({ ingredient, stock }: ShelfItem): HTMLElement {
-  const isOutOfStock = stock <= 0;
+function createShelfCard(ingredient: IIngredient, onAdd: (id: string) => void): ShelfCard {
+  const stockBadge = element('span', {
+    className: 'card__stock',
+    attributes: { 'aria-hidden': 'true' },
+  });
 
   const stats = element('span', {
     className: 'card__stats',
@@ -37,51 +48,45 @@ function createShelfCard({ ingredient, stock }: ShelfItem): HTMLElement {
     children: [element('span', { className: 'card__name', textContent: ingredient.name }), stats],
   });
 
-  const card = element('button', {
-    className: `card${isOutOfStock ? ' card--empty' : ''}`,
+  const button = element('button', {
+    className: 'card',
     attributes: {
       type: 'button',
       'data-ingredient': ingredient.id,
-      'aria-label': `Add ${ingredient.name}. Portions left: ${stock}.`,
     },
+    events: { click: () => onAdd(ingredient.id) },
     children: [
       element('span', {
         className: 'card__icon',
-        textContent: ingredient.icon,
         attributes: { 'aria-hidden': 'true' },
+        children: [ingredientIcon(ingredient.icon)],
       }),
       info,
-      element('span', {
-        className: 'card__stock',
-        textContent: String(stock),
-        attributes: { 'aria-hidden': 'true' },
-      }),
+      stockBadge,
     ],
   });
 
-  if (isOutOfStock) {
-    card.disabled = true;
-  }
-
-  return card;
+  return { id: ingredient.id, name: ingredient.name, button, stockBadge };
 }
 
-export function createShelf(items: readonly ShelfItem[]): HTMLElement {
+export function createShelfView(
+  ingredients: readonly IIngredient[],
+  onAdd: (id: string) => void,
+): ShelfView {
   const list = element('ul', {
     className: 'shelf__list',
     attributes: { 'data-field': 'shelf' },
   });
 
-  for (const item of items) {
-    list.append(
-      element('li', {
-        className: 'shelf__item',
-        children: [createShelfCard(item)],
-      }),
-    );
+  const cards: ShelfCard[] = [];
+
+  for (const ingredient of ingredients) {
+    const card = createShelfCard(ingredient, onAdd);
+    cards.push(card);
+    list.append(element('li', { className: 'shelf__item', children: [card.button] }));
   }
 
-  return element('section', {
+  const root = element('section', {
     className: 'panel shelf',
     attributes: { 'aria-labelledby': 'shelf-title' },
     children: [
@@ -93,4 +98,20 @@ export function createShelf(items: readonly ShelfItem[]): HTMLElement {
       list,
     ],
   });
+
+  function update(state: IGameState, maxCauldron: number): void {
+    const isCauldronFull = state.cauldronIngredients.length >= maxCauldron;
+
+    for (const card of cards) {
+      const stock = state.shelfStock[card.id] ?? 0;
+      const isEmpty = stock <= 0;
+
+      card.stockBadge.textContent = String(stock);
+      card.button.classList.toggle('card--empty', isEmpty);
+      card.button.disabled = isEmpty || isCauldronFull;
+      card.button.setAttribute('aria-label', `Add ${card.name}. Portions left: ${stock}.`);
+    }
+  }
+
+  return { element: root, update };
 }

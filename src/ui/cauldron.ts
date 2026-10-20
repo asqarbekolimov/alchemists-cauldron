@@ -1,37 +1,32 @@
-import type { IIngredient } from '../utils/types';
+import type { IGameState, IIngredient } from '../utils/types';
 import { element } from '../utils/dom';
-import { icon } from './icons';
+import { icon, ingredientIcon } from './icons';
 
-export function createCauldron(ingredients: readonly IIngredient[] = []): HTMLElement {
+export interface CauldronView {
+  element: HTMLElement;
+  update(state: IGameState): void;
+}
+
+function createCauldronItem(ingredient: IIngredient): HTMLElement {
+  return element('li', {
+    className: 'cauldron__item',
+    children: [
+      ingredientIcon(ingredient.icon, 'cauldron__item-icon'),
+      element('span', { textContent: ingredient.name }),
+    ],
+  });
+}
+
+export function createCauldronView(): CauldronView {
+  const hint = element('li', {
+    className: 'cauldron__hint',
+    textContent: 'Add ingredients from the shelf',
+  });
+
   const list = element('ul', {
     className: 'cauldron__list',
     attributes: { 'data-field': 'cauldron' },
   });
-
-  if (ingredients.length === 0) {
-    list.append(
-      element('li', {
-        className: 'cauldron__hint',
-        textContent: 'Add ingredients from the shelf',
-      }),
-    );
-  } else {
-    for (const ingredient of ingredients) {
-      list.append(
-        element('li', {
-          className: 'cauldron__item',
-          children: [
-            element('span', {
-              className: 'cauldron__item-icon',
-              textContent: ingredient.icon,
-              attributes: { 'aria-hidden': 'true' },
-            }),
-            element('span', { textContent: ingredient.name }),
-          ],
-        }),
-      );
-    }
-  }
 
   const liquid = element('div', {
     className: 'cauldron__liquid',
@@ -54,9 +49,24 @@ export function createCauldron(ingredients: readonly IIngredient[] = []): HTMLEl
     children: [liquid, body],
   });
 
-  return element('section', {
+  const root = element('section', {
     className: 'panel cauldron',
     attributes: { 'aria-label': 'Cauldron' },
     children: [object],
   });
+
+  function update(state: IGameState): void {
+    list.replaceChildren();
+
+    if (state.cauldronIngredients.length === 0) {
+      list.append(hint);
+      return;
+    }
+
+    for (const ingredient of state.cauldronIngredients) {
+      list.append(createCauldronItem(ingredient));
+    }
+  }
+
+  return { element: root, update };
 }

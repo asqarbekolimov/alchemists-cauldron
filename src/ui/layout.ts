@@ -1,47 +1,50 @@
-import { INGREDIENTS } from '../data/ingredients';
-import type { IRecipe } from '../utils/types';
+import type { IGameState } from '../utils/types';
 import { element } from '../utils/dom';
+import {
+  addIngredientToCauldron,
+  getGameState,
+  MAX_CAULDRON_SIZE,
+  SHELF_INGREDIENTS,
+  subscribe,
+} from '../state/game-state';
 import { createActions } from './actions';
 import { createBars } from './bars';
-import { createCauldron } from './cauldron';
+import { createCauldronView } from './cauldron';
 import { createHeader } from './header';
-import { createRecipePanel } from './recipe';
-import { createShelf } from './shelf';
-
-// Static preview data used until the game state is wired up (US 1.3+).
-const PREVIEW_RECIPE: IRecipe = {
-  id: 'moon-mist',
-  name: 'Moon Mist',
-  difficulty: 'medium',
-  temperature: { min: 32, max: 42 },
-  density: { min: 12, max: 22 },
-  magicPower: { min: 17, max: 27 },
-};
-
-const PREVIEW_STOCK = [9, 12, 7, 10, 8, 5];
-const MAX_INGREDIENTS = 4;
+import { createRecipeView } from './recipe';
+import { createShelfView } from './shelf';
 
 export function mainLayout(): HTMLElement {
-  const shelfItems = INGREDIENTS.slice(0, 6).map((ingredient, index) => ({
-    ingredient,
-    stock: PREVIEW_STOCK[index] ?? 0,
-  }));
+  const state = getGameState();
 
-  return element('div', {
+  const shelf = createShelfView(SHELF_INGREDIENTS, (ingredientId) =>
+    addIngredientToCauldron(ingredientId),
+  );
+  const cauldron = createCauldronView();
+  const recipe = createRecipeView(MAX_CAULDRON_SIZE);
+
+  const layout = element('div', {
     className: 'layout',
     children: [
-      createHeader({ score: 0, timeLeft: 150, lives: 3 }),
+      createHeader({ score: state.score, timeLeft: state.timeLeft, lives: state.lives }),
       element('h1', { className: 'title', textContent: "Alchemist's Cauldron" }),
       element('main', {
         className: 'main',
-        children: [
-          createShelf(shelfItems),
-          createCauldron(),
-          createRecipePanel(PREVIEW_RECIPE, 0, MAX_INGREDIENTS),
-        ],
+        children: [shelf.element, cauldron.element, recipe.element],
       }),
-      createBars(PREVIEW_RECIPE, { temperature: 0, density: 0, magicPower: 0 }),
+      createBars(state.activeRecipe, { temperature: 0, density: 0, magicPower: 0 }),
       createActions(),
     ],
   });
+
+  const render = (nextState: IGameState): void => {
+    shelf.update(nextState, MAX_CAULDRON_SIZE);
+    cauldron.update(nextState);
+    recipe.update(nextState);
+  };
+
+  subscribe(render);
+  render(state);
+
+  return layout;
 }

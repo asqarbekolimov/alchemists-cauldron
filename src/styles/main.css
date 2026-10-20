@@ -278,11 +278,25 @@ button {
   place-items: center;
   width: 46px;
   height: 46px;
-  font-size: 1.55rem;
-  line-height: 1;
+  color: #b7e882;
   background: radial-gradient(circle at 50% 38%, #2c3a24, #10150c 75%);
   border: 1px solid #3a4a2e;
   border-radius: 10px;
+}
+
+.card__glyph {
+  width: 28px;
+  height: 28px;
+  filter: drop-shadow(0 0 6px rgb(142 226 85 / 35%));
+}
+
+.card--empty {
+  opacity: 0.45;
+  filter: grayscale(0.9);
+}
+
+.card--empty .card__icon {
+  visibility: hidden;
 }
 
 .card__info {
@@ -401,13 +415,19 @@ button {
 .cauldron__item {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 3px 8px;
+  gap: 5px;
+  padding: 3px 9px;
   font-size: 0.78rem;
   color: #dcf9b8;
   background: rgb(9 20 6 / 88%);
   border: 1px solid rgb(190 255 130 / 40%);
   border-radius: 999px;
+}
+
+.cauldron__item-icon {
+  width: 15px;
+  height: 15px;
+  flex: none;
 }
 
 .cauldron__body {
