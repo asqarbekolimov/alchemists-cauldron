@@ -1,5 +1,6 @@
 import type { IGameState } from '../utils/types';
 import { element } from '../utils/dom';
+import { calculateCauldron } from '../logic/calculate-cauldron';
 import {
   addIngredientToCauldron,
   getGameState,
@@ -8,7 +9,7 @@ import {
   subscribe,
 } from '../state/game-state';
 import { createActions } from './actions';
-import { createBars } from './bars';
+import { createBarsView } from './bars';
 import { createCauldronView } from './cauldron';
 import { createHeader } from './header';
 import { createRecipeView } from './recipe';
@@ -22,6 +23,7 @@ export function mainLayout(): HTMLElement {
   );
   const cauldron = createCauldronView();
   const recipe = createRecipeView(MAX_CAULDRON_SIZE);
+  const bars = createBarsView();
 
   const layout = element('div', {
     className: 'layout',
@@ -32,15 +34,18 @@ export function mainLayout(): HTMLElement {
         className: 'main',
         children: [shelf.element, cauldron.element, recipe.element],
       }),
-      createBars(state.activeRecipe, { temperature: 0, density: 0, magicPower: 0 }),
+      bars.element,
       createActions(),
     ],
   });
 
   const render = (nextState: IGameState): void => {
+    const values = calculateCauldron(nextState.cauldronIngredients);
+
     shelf.update(nextState, MAX_CAULDRON_SIZE);
     cauldron.update(nextState);
     recipe.update(nextState);
+    bars.update(nextState.activeRecipe, values);
   };
 
   subscribe(render);
