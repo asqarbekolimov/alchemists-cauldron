@@ -4,7 +4,7 @@ import { icon, type IconName } from './icons';
 
 export interface RecipeView {
   element: HTMLElement;
-  update(state: IGameState): void;
+  update(state: IGameState, capacity: number): void;
 }
 
 function formatRange(range: IRecipeRange): string {
@@ -27,9 +27,14 @@ function createTarget(
   });
 }
 
-export function createRecipeView(capacity: number): RecipeView {
+export function createRecipeView(): RecipeView {
   const name = element('p', { className: 'recipe__name' });
   const counterValue = element('strong');
+  const counter = element('p', {
+    className: 'recipe__counter',
+    attributes: { 'data-field': 'ingredient-counter', 'aria-live': 'polite' },
+    children: [element('span', { textContent: 'Ingredients: ' }), counterValue],
+  });
   const targets = element('ul', { className: 'recipe__targets' });
 
   const root = element('aside', {
@@ -48,15 +53,11 @@ export function createRecipeView(capacity: number): RecipeView {
         children: [icon('flask', 'recipe__art-icon')],
       }),
       targets,
-      element('p', {
-        className: 'recipe__counter',
-        attributes: { 'data-field': 'ingredient-counter' },
-        children: [element('span', { textContent: 'Ingredients: ' }), counterValue],
-      }),
+      counter,
     ],
   });
 
-  function update(state: IGameState): void {
+  function update(state: IGameState, capacity: number): void {
     const recipe = state.activeRecipe;
 
     name.textContent = recipe.name;
@@ -66,6 +67,7 @@ export function createRecipeView(capacity: number): RecipeView {
       createTarget('magic', 'spark', 'Magic', recipe.magicPower),
     );
     counterValue.textContent = `${state.cauldronIngredients.length} / ${capacity}`;
+    counter.classList.toggle('recipe__counter--full', state.cauldronIngredients.length >= capacity);
   }
 
   return { element: root, update };

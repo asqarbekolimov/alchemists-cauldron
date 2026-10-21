@@ -556,13 +556,29 @@ button {
 }
 
 .recipe__counter {
-  padding-top: 12px;
+  padding: 12px 10px 8px;
   margin-top: 12px;
   font-size: 0.92rem;
   letter-spacing: 0.1em;
   text-align: center;
   text-transform: uppercase;
   border-top: 1px solid rgb(122 90 42 / 40%);
+  border-radius: 10px;
+  transition:
+    color 0.2s ease,
+    background 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.recipe__counter--full {
+  color: #7c2410;
+  background: rgb(190 68 30 / 14%);
+  box-shadow: inset 0 0 0 1px rgb(176 52 31 / 35%);
+}
+
+.recipe__counter--full strong {
+  color: #a82c0f;
+  text-shadow: 0 0 16px rgb(220 90 40 / 55%);
 }
 
 .recipe__counter strong {
@@ -713,6 +729,11 @@ button {
   grid-template-columns: 1fr minmax(0, 440px) 1fr;
   align-items: center;
   gap: 12px;
+}
+
+.actions__primary {
+  width: 100%;
+  justify-self: center;
 }
 
 .btn {
