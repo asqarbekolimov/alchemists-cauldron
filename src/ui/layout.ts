@@ -13,6 +13,7 @@ import {
 import { createActionsView } from './actions';
 import { createBarsView } from './bars';
 import { createCauldronView } from './cauldron';
+import { createGameOverView } from './game-over';
 import { createHeaderView } from './header';
 import { createRecipeView } from './recipe';
 import { createShelfView } from './shelf';
@@ -33,6 +34,7 @@ export function mainLayout(): HTMLElement {
       brewCauldron();
     },
   });
+  const gameOver = createGameOverView(startGame);
 
   const layout = element('div', {
     className: 'layout',
@@ -45,6 +47,7 @@ export function mainLayout(): HTMLElement {
       }),
       bars.element,
       actions.element,
+      gameOver.element,
     ],
   });
 
@@ -58,6 +61,7 @@ export function mainLayout(): HTMLElement {
     recipe.update(nextState, settings.maxCauldronIngredients);
     bars.update(nextState.activeRecipe, values);
     actions.update(nextState);
+    gameOver.update(nextState);
   };
 
   subscribe(render);

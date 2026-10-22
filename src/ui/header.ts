@@ -49,30 +49,72 @@ export function createHeaderView(): HeaderView {
     attributes: { 'data-field': 'lives', role: 'img' },
   });
 
-  const root = element('header', {
+  const timeFill = element('span', { className: 'time-bar__fill' });
+  const timeBar = element('div', {
+    className: 'time-bar',
+    attributes: {
+      role: 'progressbar',
+      'aria-label': 'Time remaining',
+      'aria-valuemin': '0',
+      'aria-valuemax': '150',
+      'aria-valuenow': '0',
+    },
+    children: [timeFill],
+  });
+
+  const header = element('header', {
     className: 'header',
     children: [score.element, timer.element, lives],
   });
 
+  const root = element('div', {
+    className: 'header-shell',
+    children: [header, timeBar],
+  });
+
+  let renderedLives = -1;
+  let renderedMaxLives = -1;
+  let isMenuRendered = false;
+
   function update(state: IGameState): void {
     const maxLives = DIFFICULTY_SETTINGS[state.difficulty ?? DEFAULT_DIFFICULTY].lives;
+    const startingTime = DIFFICULTY_SETTINGS[state.difficulty ?? DEFAULT_DIFFICULTY].startingTime;
+    const ratio = Math.min(Math.max(state.timeLeft / startingTime, 0), 1);
     const isMenu = state.status === 'menu';
 
     score.value.textContent = String(state.score);
     timer.value.textContent = formatTime(state.timeLeft);
-
-    lives.replaceChildren();
+    timeFill.style.width = `${ratio * 100}%`;
+    timeBar.setAttribute('aria-valuemax', String(startingTime));
+    timeBar.setAttribute('aria-valuenow', String(state.timeLeft));
+    header.classList.toggle('header--low', state.status === 'playing' && state.timeLeft < 15);
 
     if (isMenu) {
-      lives.setAttribute('aria-label', 'Lives: not started');
+      if (!isMenuRendered) {
+        lives.replaceChildren();
+        lives.setAttribute('aria-label', 'Lives: not started');
+        isMenuRendered = true;
+        renderedLives = -1;
+      }
+
       return;
     }
+
+    isMenuRendered = false;
+
+    if (maxLives === renderedMaxLives && state.lives === renderedLives) {
+      return;
+    }
+
+    lives.replaceChildren();
 
     for (let index = 0; index < maxLives; index += 1) {
       lives.append(icon('heart', index < state.lives ? 'life' : 'life life--lost'));
     }
 
     lives.setAttribute('aria-label', `Lives: ${state.lives} of ${maxLives}`);
+    renderedLives = state.lives;
+    renderedMaxLives = maxLives;
   }
 
   return { element: root, update };
