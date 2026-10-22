@@ -59,6 +59,8 @@ export function createCauldronView(): CauldronView {
     list.replaceChildren();
 
     if (state.cauldronIngredients.length === 0) {
+      hint.textContent =
+        state.status === 'menu' ? 'Press Start Game to begin' : 'Add ingredients from the shelf';
       list.append(hint);
       return;
     }

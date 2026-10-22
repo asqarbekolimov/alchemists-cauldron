@@ -97,6 +97,7 @@ export function createShelfView(
   });
 
   function update(state: IGameState, maxCauldron: number): void {
+    const isPlaying = state.status === 'playing';
     const isCauldronFull = state.cauldronIngredients.length >= maxCauldron;
 
     for (const card of cards) {
@@ -105,7 +106,7 @@ export function createShelfView(
 
       card.stockBadge.textContent = String(stock);
       card.button.classList.toggle('card--empty', isEmpty);
-      card.button.disabled = isEmpty || isCauldronFull;
+      card.button.disabled = !isPlaying || isEmpty || isCauldronFull;
       card.button.setAttribute('aria-label', `Add ${card.name}. Portions left: ${stock}.`);
     }
   }

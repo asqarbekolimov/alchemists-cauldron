@@ -1,11 +1,11 @@
+import { DEFAULT_DIFFICULTY, DIFFICULTY_SETTINGS } from '../data/difficulty';
 import { INGREDIENTS } from '../data/ingredients';
 import type { IGameState } from '../utils/types';
 
-export const MAX_CAULDRON_SIZE = 4;
-
 export function canAddIngredient(state: IGameState, ingredientId: string): boolean {
   const isPlaying = state.status === 'playing';
-  const hasRoom = state.cauldronIngredients.length < MAX_CAULDRON_SIZE;
+  const { maxCauldronIngredients } = DIFFICULTY_SETTINGS[state.difficulty ?? DEFAULT_DIFFICULTY];
+  const hasRoom = state.cauldronIngredients.length < maxCauldronIngredients;
   const hasStock = (state.shelfStock[ingredientId] ?? 0) > 0;
 
   return isPlaying && hasRoom && hasStock;
