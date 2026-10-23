@@ -40,6 +40,7 @@ export interface IGameState {
   cauldronIngredients: IIngredient[];
   shelfStock: Record<string, number>; // ingredient id -> portions left
   endTime?: number; // timestamp when the current run runs out of time
+  pausedAt?: number; // timestamp when the run was paused
   gameOverReason?: GameOverReason;
   difficulty?: Difficulty; // Level 2+
   lastReactionId?: string | null; // Level 3+

@@ -1,6 +1,7 @@
 import { DEFAULT_DIFFICULTY, DIFFICULTY_SETTINGS } from '../data/difficulty';
 import type { IGameState } from '../utils/types';
 import { element } from '../utils/dom';
+import { formatTime } from '../utils/format';
 import { icon, type IconName } from './icons';
 
 export interface HeaderView {
@@ -11,14 +12,6 @@ export interface HeaderView {
 interface StatElements {
   element: HTMLElement;
   value: HTMLElement;
-}
-
-function formatTime(totalSeconds: number): string {
-  const safeSeconds = Math.max(0, Math.floor(totalSeconds));
-  const minutes = Math.floor(safeSeconds / 60);
-  const seconds = safeSeconds % 60;
-
-  return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
 }
 
 function createStat(iconName: IconName, label: string, field: string, modifier = ''): StatElements {
@@ -40,13 +33,30 @@ function createStat(iconName: IconName, label: string, field: string, modifier =
   };
 }
 
-export function createHeaderView(): HeaderView {
+export function createHeaderView(onPause: () => void): HeaderView {
   const score = createStat('flask', 'Score', 'score');
   const timer = createStat('clock', 'Time', 'timer', 'time');
 
   const lives = element('div', {
     className: 'lives',
     attributes: { 'data-field': 'lives', role: 'img' },
+  });
+
+  const pauseButton = element('button', {
+    className: 'pause-button',
+    attributes: {
+      type: 'button',
+      'data-action': 'pause',
+      'aria-label': 'Pause game',
+      title: 'Pause game',
+    },
+    children: [icon('pause', 'pause-button__icon')],
+    events: { click: onPause },
+  });
+
+  const right = element('div', {
+    className: 'header__right',
+    children: [lives, pauseButton],
   });
 
   const timeFill = element('span', { className: 'time-bar__fill' });
@@ -64,7 +74,7 @@ export function createHeaderView(): HeaderView {
 
   const header = element('header', {
     className: 'header',
-    children: [score.element, timer.element, lives],
+    children: [score.element, timer.element, right],
   });
 
   const root = element('div', {
@@ -88,6 +98,7 @@ export function createHeaderView(): HeaderView {
     timeBar.setAttribute('aria-valuemax', String(startingTime));
     timeBar.setAttribute('aria-valuenow', String(state.timeLeft));
     header.classList.toggle('header--low', state.status === 'playing' && state.timeLeft < 15);
+    pauseButton.hidden = state.status !== 'playing';
 
     if (isMenu) {
       if (!isMenuRendered) {

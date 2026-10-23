@@ -5,7 +5,10 @@ import { calculateCauldron } from '../logic/calculate-cauldron';
 import {
   addIngredientToCauldron,
   brewCauldron,
+  exitToMenu,
   getGameState,
+  pauseGame,
+  resumeGame,
   SHELF_INGREDIENTS,
   startGame,
   subscribe,
@@ -15,13 +18,14 @@ import { createBarsView } from './bars';
 import { createCauldronView } from './cauldron';
 import { createGameOverView } from './game-over';
 import { createHeaderView } from './header';
+import { createPauseView } from './pause';
 import { createRecipeView } from './recipe';
 import { createShelfView } from './shelf';
 
 export function mainLayout(): HTMLElement {
   const state = getGameState();
 
-  const header = createHeaderView();
+  const header = createHeaderView(pauseGame);
   const shelf = createShelfView(SHELF_INGREDIENTS, (ingredientId) =>
     addIngredientToCauldron(ingredientId),
   );
@@ -35,6 +39,7 @@ export function mainLayout(): HTMLElement {
     },
   });
   const gameOver = createGameOverView(startGame);
+  const pause = createPauseView({ onResume: resumeGame, onExit: exitToMenu });
 
   const layout = element('div', {
     className: 'layout',
@@ -48,6 +53,7 @@ export function mainLayout(): HTMLElement {
       bars.element,
       actions.element,
       gameOver.element,
+      pause.element,
     ],
   });
 
@@ -55,6 +61,7 @@ export function mainLayout(): HTMLElement {
     const settings = DIFFICULTY_SETTINGS[nextState.difficulty ?? DEFAULT_DIFFICULTY];
     const values = calculateCauldron(nextState.cauldronIngredients);
 
+    layout.classList.toggle('layout--paused', nextState.status === 'paused');
     header.update(nextState);
     shelf.update(nextState, settings.maxCauldronIngredients);
     cauldron.update(nextState);
@@ -62,6 +69,7 @@ export function mainLayout(): HTMLElement {
     bars.update(nextState.activeRecipe, values);
     actions.update(nextState);
     gameOver.update(nextState);
+    pause.update(nextState);
   };
 
   subscribe(render);
