@@ -193,6 +193,46 @@ button {
   gap: clamp(6px, 1vw, 12px);
 }
 
+.header__right {
+  display: flex;
+  align-items: center;
+  justify-self: end;
+  min-width: 0;
+  gap: clamp(8px, 1.2vw, 14px);
+}
+
+.pause-button {
+  display: inline-grid;
+  place-items: center;
+  width: clamp(34px, 3vw, 40px);
+  height: clamp(34px, 3vw, 40px);
+  color: var(--green-strong);
+  background: rgb(142 226 85 / 6%);
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  transition:
+    color 0.15s ease,
+    background 0.15s ease,
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.pause-button:hover {
+  color: #0d1a06;
+  background: linear-gradient(180deg, #b6f06a, #77c62f);
+  border-color: var(--green-strong);
+  box-shadow: 0 0 20px -4px rgb(142 226 85 / 70%);
+}
+
+.pause-button[hidden] {
+  display: none;
+}
+
+.pause-button__icon {
+  width: 18px;
+  height: 18px;
+}
+
 .life {
   width: clamp(24px, 2.4vw, 32px);
   height: clamp(24px, 2.4vw, 32px);
@@ -866,11 +906,35 @@ button {
   transform: none;
 }
 
+.btn--outline {
+  width: 100%;
+  padding: 12px 24px;
+  font-family: var(--font-display);
+  font-size: clamp(1rem, 1.8vw, 1.25rem);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text);
+  background: rgb(142 226 85 / 6%);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  transition:
+    color 0.15s ease,
+    background 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.btn--outline:hover {
+  color: var(--green-strong);
+  background: rgb(142 226 85 / 12%);
+  border-color: var(--green);
+}
+
 /* ==========================================================================
-   Game Over
+   Dialog screens (Game Over / Pause)
    ========================================================================== */
 
-.game-over {
+.game-over,
+.pause {
   position: fixed;
   inset: 0;
   z-index: 30;
@@ -881,11 +945,18 @@ button {
   backdrop-filter: blur(3px);
 }
 
-.game-over[hidden] {
+.pause {
+  background: radial-gradient(circle at 50% 40%, rgb(18 27 13 / 94%), rgb(2 4 2 / 98%));
+  backdrop-filter: blur(10px);
+}
+
+.game-over[hidden],
+.pause[hidden] {
   display: none;
 }
 
-.game-over__panel {
+.game-over__panel,
+.pause__panel {
   width: min(100%, 460px);
   padding: clamp(24px, 4vw, 40px);
   text-align: center;
@@ -895,17 +966,19 @@ button {
   box-shadow:
     0 0 70px -22px rgb(142 226 85 / 45%),
     var(--shadow-panel);
-  animation: game-over-in 0.35s ease-out both;
+  animation: modal-in 0.35s ease-out both;
 }
 
-.game-over__eyebrow {
+.game-over__eyebrow,
+.pause__eyebrow {
   font-size: 0.72rem;
   letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--text-dim);
 }
 
-.game-over__title {
+.game-over__title,
+.pause__title {
   margin: 8px 0 6px;
   font-family: var(--font-display);
   font-size: clamp(2rem, 4vw, 2.8rem);
@@ -937,11 +1010,47 @@ button {
   color: var(--green);
 }
 
-.game-over__button {
+.game-over__button,
+.pause__button {
   width: 100%;
 }
 
-@keyframes game-over-in {
+.pause__time {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 20px 0 24px;
+  font-size: 0.76rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.pause__time strong {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 4vw, 2.6rem);
+  letter-spacing: 0.04em;
+  color: var(--green);
+}
+
+.pause__actions {
+  display: grid;
+  gap: 10px;
+}
+
+/* The field is blurred and dimmed so the player cannot study it while paused. */
+.layout--paused .header-shell,
+.layout--paused .title,
+.layout--paused .main,
+.layout--paused .bars,
+.layout--paused .actions {
+  filter: blur(6px);
+  opacity: 0.3;
+  pointer-events: none;
+  user-select: none;
+}
+
+@keyframes modal-in {
   from {
     opacity: 0;
     transform: translateY(14px) scale(0.98);
