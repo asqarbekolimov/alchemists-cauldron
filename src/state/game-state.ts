@@ -16,16 +16,16 @@ export type BrewOutcome = 'success' | 'failure' | 'ignored';
 const listeners = new Set<(state: IGameState) => void>();
 
 // Start screen: empty shelf and cauldron, no score, time or lives yet.
-export function createMenuState(): IGameState {
+export function createMenuState(difficulty: Difficulty = DEFAULT_DIFFICULTY): IGameState {
   return {
     status: 'menu',
     score: 0,
     timeLeft: 0,
     lives: 0,
-    activeRecipe: pickRandomRecipe(DEFAULT_DIFFICULTY),
+    activeRecipe: pickRandomRecipe(difficulty),
     cauldronIngredients: [],
     shelfStock: {},
-    difficulty: DEFAULT_DIFFICULTY,
+    difficulty,
   };
 }
 
@@ -90,6 +90,53 @@ export function tickGame(now = Date.now()): void {
   if (timeLeft !== state.timeLeft) {
     updateState({ ...state, timeLeft });
   }
+}
+
+// Freezing keeps the exact remaining time; resume shifts the end timestamp by the pause duration.
+export function pauseGame(): void {
+  tickGame();
+
+  const state = store.state;
+
+  if (state.status !== 'playing') {
+    return;
+  }
+
+  const now = Date.now();
+  const timeLeft =
+    state.endTime === undefined ? state.timeLeft : getRemainingSeconds(state.endTime, now);
+
+  updateState({ ...state, status: 'paused', timeLeft, pausedAt: now });
+}
+
+export function resumeGame(): void {
+  const state = store.state;
+
+  if (state.status !== 'paused') {
+    return;
+  }
+
+  const now = Date.now();
+  const pauseDuration = state.pausedAt === undefined ? 0 : now - state.pausedAt;
+  const endTime = (state.endTime ?? now + state.timeLeft * 1000) + pauseDuration;
+
+  updateState({
+    ...state,
+    status: 'playing',
+    endTime,
+    timeLeft: getRemainingSeconds(endTime, now),
+    pausedAt: undefined,
+  });
+}
+
+export function exitToMenu(): void {
+  const state = store.state;
+
+  if (state.status !== 'paused') {
+    return;
+  }
+
+  updateState(createMenuState(state.difficulty ?? DEFAULT_DIFFICULTY));
 }
 
 export function addIngredientToCauldron(ingredientId: string): void {
