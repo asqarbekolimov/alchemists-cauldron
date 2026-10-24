@@ -48,6 +48,7 @@ export function mainLayout(): HTMLElement {
     onBrew: () => {
       brewCauldron();
     },
+    onLeaderboard: leaderboard.open,
   });
   const gameOver = createGameOverView({
     onPlayAgain: startGame,

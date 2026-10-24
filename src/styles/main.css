@@ -828,6 +828,39 @@ button {
   justify-self: center;
 }
 
+.actions__menu {
+  display: grid;
+  gap: 8px;
+}
+
+.btn--leaderboard {
+  display: inline-flex;
+  align-items: center;
+  justify-self: center;
+  gap: 7px;
+  padding: 5px 12px;
+  font-size: 0.7rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  background: transparent;
+  border: 0;
+  border-radius: 10px;
+  transition:
+    color 0.15s ease,
+    background 0.15s ease;
+}
+
+.btn--leaderboard:hover {
+  color: var(--green);
+  background: rgb(142 226 85 / 8%);
+}
+
+.btn--leaderboard .btn__icon {
+  width: 18px;
+  height: 18px;
+}
+
 .btn {
   cursor: pointer;
 }
@@ -1496,6 +1529,10 @@ button {
   .btn--brew {
     padding: 10px 16px;
     letter-spacing: 0.14em;
+  }
+
+  .btn--leaderboard {
+    font-size: 0.62rem;
   }
 
   .game-over__prompt {
