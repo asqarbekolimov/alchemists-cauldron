@@ -5,6 +5,7 @@ import { icon, type IconName } from './icons';
 export interface ActionsHandlers {
   onStart: () => void;
   onBrew: () => void;
+  onLeaderboard: () => void;
 }
 
 export interface ActionsView {
@@ -43,6 +44,21 @@ export function createActionsView(handlers: ActionsHandlers): ActionsView {
     events: { click: handlers.onBrew },
   });
 
+  const leaderboard = element('button', {
+    className: 'btn btn--leaderboard',
+    attributes: { type: 'button', 'data-action': 'leaderboard' },
+    children: [
+      icon('trophy', 'btn__icon'),
+      element('span', { className: 'btn__label', textContent: 'Leaderboard' }),
+    ],
+    events: { click: handlers.onLeaderboard },
+  });
+
+  const menu = element('div', {
+    className: 'actions__menu',
+    children: [start, leaderboard],
+  });
+
   const primary = element('div', { className: 'actions__primary' });
 
   const root = element('footer', {
@@ -60,7 +76,7 @@ export function createActionsView(handlers: ActionsHandlers): ActionsView {
     const nextMode = state.status === 'menu' ? 'menu' : 'game';
 
     if (nextMode !== mode) {
-      primary.replaceChildren(nextMode === 'menu' ? start : brew);
+      primary.replaceChildren(nextMode === 'menu' ? menu : brew);
       mode = nextMode;
     }
 
