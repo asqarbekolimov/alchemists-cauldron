@@ -46,6 +46,12 @@ export interface IGameState {
   lastReactionId?: string | null; // Level 3+
 }
 
+export interface ILeaderboardEntry {
+  name: string;
+  score: number;
+  date: number;
+}
+
 export interface IReaction {
   id: string;
   name: string;
