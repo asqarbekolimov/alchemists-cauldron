@@ -13,11 +13,18 @@ import {
   startGame,
   subscribe,
 } from '../state/game-state';
+import {
+  canEnterLeaderboard,
+  clearLeaderboard,
+  getLeaderboardEntries,
+  saveLeaderboardEntry,
+} from '../state/leaderboard';
 import { createActionsView } from './actions';
 import { createBarsView } from './bars';
 import { createCauldronView } from './cauldron';
 import { createGameOverView } from './game-over';
 import { createHeaderView } from './header';
+import { createLeaderboardView } from './leaderboard';
 import { createPauseView } from './pause';
 import { createRecipeView } from './recipe';
 import { createShelfView } from './shelf';
@@ -32,13 +39,22 @@ export function mainLayout(): HTMLElement {
   const cauldron = createCauldronView();
   const recipe = createRecipeView();
   const bars = createBarsView();
+  const leaderboard = createLeaderboardView({
+    getEntries: getLeaderboardEntries,
+    onClear: clearLeaderboard,
+  });
   const actions = createActionsView({
     onStart: startGame,
     onBrew: () => {
       brewCauldron();
     },
   });
-  const gameOver = createGameOverView(startGame);
+  const gameOver = createGameOverView({
+    onPlayAgain: startGame,
+    onOpenLeaderboard: leaderboard.open,
+    canSaveScore: canEnterLeaderboard,
+    onSaveScore: saveLeaderboardEntry,
+  });
   const pause = createPauseView({ onResume: resumeGame, onExit: exitToMenu });
 
   const layout = element('div', {
@@ -54,6 +70,7 @@ export function mainLayout(): HTMLElement {
       actions.element,
       gameOver.element,
       pause.element,
+      leaderboard.element,
     ],
   });
 
